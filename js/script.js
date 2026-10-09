@@ -89,3 +89,42 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
 });
+
+// ============================================================
+// ADD-ON — paste at the very END of js/script.js, AFTER the
+// closing "});" of the existing DOMContentLoaded block.
+// It has its own listener, so nothing above needs to change.
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', function () {
+
+  // ---------- Toggle buttons (e.g. "Show the gap" on the Legal page) ----------
+  // Markup: <button class="toggle-btn" data-target="id" data-toggle-class="show-gap"
+  //          data-label-on="Hide the gap" data-label-off="Show the gap" aria-pressed="false">
+  document.querySelectorAll('[data-toggle-class]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = document.getElementById(btn.getAttribute('data-target'));
+      if (!target) return;
+      var on = target.classList.toggle(btn.getAttribute('data-toggle-class'));
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.textContent = on ? btn.getAttribute('data-label-on') : btn.getAttribute('data-label-off');
+    });
+  });
+
+  // ---------- Bars grow when they scroll into view ----------
+  var fills = document.querySelectorAll('.bar-fill');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if ('IntersectionObserver' in window && !reduce && fills.length) {
+    fills.forEach(function (f) { f.classList.add('pre'); });
+    var barIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove('pre');
+          barIO.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    fills.forEach(function (f) { barIO.observe(f); });
+  }
+
+});
